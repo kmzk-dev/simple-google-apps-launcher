@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google App Launcher Settings</title>
+  <style>
+    :root {
+      --bg-color: #202124;
+      --card-bg: #292a2d;
+      --card-hover: #35363a;
+      --text-main: #e8eaed;
+      --text-sub: #bdc1c6;
+      --accent: #8ab4f8;
+      --border: #3c4043;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      padding: 40px;
+      max-width: 1000px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    header {
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 400;
+      margin: 0 0 10px 0;
+    }
+
+    .description {
+      color: var(--text-sub);
+      font-size: 15px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .app-toggle {
+      background-color: var(--card-bg);
+      padding: 16px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      user-select: none;
+    }
+
+    .app-toggle:hover {
+      background-color: var(--card-hover);
+      border-color: var(--border);
+      transform: translateY(-2px);
+    }
+
+    .app-toggle input {
+      margin-right: 16px;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    .app-info {
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+
+    .app-icon {
+      width: 28px;
+      height: 28px;
+      margin-right: 12px;
+      object-fit: contain;
+    }
+
+    .app-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    #save-status {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      background-color: var(--accent);
+      color: var(--bg-color);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    #save-status.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* スクロールバーのカスタマイズ */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-color);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 5px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #5f6368;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ランチャー設定</h1>
+    <p class="description">ポップアップに表示するアプリケーションを選択してください。チェックを外すと非表示になります。並び順はポップアップ画面で直接ドラッグして変更できます。</p>
+  </header>
+  
+  <div id="app-list" class="grid">
+    <!-- JavaScriptでアプリ項目が生成されます -->
+  </div>
+  
+  <div id="save-status">設定を保存しました</div>
+
+  <script src="options.js"></script>
+</body>
+</html>

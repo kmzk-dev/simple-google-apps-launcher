@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "Simple Google Apps Launcher",
+  "version": "1.0",
+  "description": "表示ON/OFF設定とドラッグ＆ドロップに対応したGoogleアプリランチャー",
+  "icons": {
+    "16": "statics/this-app-icon.png",
+    "48": "statics/this-app-icon.png",
+    "128": "statics/this-app-icon.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "statics/this-app-icon.png",
+      "48": "statics/this-app-icon.png",
+      "128": "statics/this-app-icon.png"
+    }
+  },
+  "options_page": "options.html",
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+L",
+        "mac": "Alt+L"
+      },
+      "description": "Toggle the Google App Launcher"
+    }
+  }
+}
