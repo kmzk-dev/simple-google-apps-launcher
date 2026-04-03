@@ -37,6 +37,25 @@
       margin: 0 0 10px 0;
     }
 
+    .settings-section {
+      margin-bottom: 24px;
+      padding: 16px;
+      background-color: var(--card-bg);
+      border-radius: 12px;
+    }
+    .setting-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    #icon-style-select {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
     .description {
       color: var(--text-sub);
       font-size: 15px;
@@ -135,9 +154,19 @@
     <h1>ランチャー設定</h1>
     <p class="description">ポップアップに表示するアプリケーションを選択してください。チェックを外すと非表示になります。並び順はポップアップ画面で直接ドラッグして変更できます。</p>
   </header>
+  <section class="settings-section">
+  <h2>表示設定</h2>
+    <div class="setting-item">
+      <label for="icon-style-select">アイコンのスタイル:</label>
+      <select id="icon-style-select">
+        <option value="origin">標準 (Original)</option>
+        <option value="dot">ドット (Dot)</option>
+      </select>
+    </div>
+  </section>
   
   <div id="app-list" class="grid">
-    <!-- JavaScriptでアプリ項目が生成されます -->
+    <!-- views -->
   </div>
   
   <div id="save-status">設定を保存しました</div>
