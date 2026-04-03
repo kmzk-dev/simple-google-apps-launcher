@@ -11,14 +11,16 @@ const statusMsg = document.getElementById('save-status');
  */
 function getIconUrl(app, style = 'origin') {
   const dir = style === 'dot' ? 'dot-icons' : 'origin-icons';
+  // default_apps.json の icon フィールドがファイル名のみであることを前提とする
   const fileName = app.icon || 'sample.png';
   return `statics/${dir}/${fileName}`;
 }
 
 /**
- * 初期化
+ * 初期化：JSON から DEFAULT_APPS を読み込み、設定に基づいてリストを生成
  */
 async function init() {
+  // 1. JSON ファイルから DEFAULT_APPS を読み込む
   try {
     const response = await fetch('default_apps.json');
     if (!response.ok) throw new Error('Failed to load default_apps.json');
@@ -28,10 +30,12 @@ async function init() {
     return;
   }
 
+  // 2. ストレージから設定を取得し、初期描画を行う
   if (typeof chrome !== 'undefined' && chrome.storage) {
-    const result = await chrome.storage.local.get(['hiddenAppIds', 'iconStyle']);
+    const result = await chrome.storage.local.get(['hiddenAppIds', 'iconStyle', 'iconSize']);
     const hiddenIds = result.hiddenAppIds || [];
     const currentStyle = result.iconStyle || 'origin';
+    const currentSize = result.iconSize || 'small';
 
     // スタイル選択セレクトボックスの初期化
     const styleSelect = document.getElementById('icon-style-select');
@@ -39,22 +43,35 @@ async function init() {
       styleSelect.value = currentStyle;
       styleSelect.addEventListener('change', async (e) => {
         const newStyle = e.target.value;
+        const size = document.getElementById('icon-size-select').value;
         await chrome.storage.local.set({ iconStyle: newStyle });
         showNotification();
-        // スタイル変更時に再描画を実行
-        renderList(hiddenIds, newStyle);
+        renderList(hiddenIds, newStyle, size);
+      });
+    }
+
+    // サイズ選択セレクトボックスの初期化
+    const sizeSelect = document.getElementById('icon-size-select');
+    if (sizeSelect) {
+      sizeSelect.value = currentSize;
+      sizeSelect.addEventListener('change', async (e) => {
+        const newSize = e.target.value;
+        const style = document.getElementById('icon-style-select').value;
+        await chrome.storage.local.set({ iconSize: newSize });
+        showNotification();
+        renderList(hiddenIds, style, newSize);
       });
     }
 
     // 初回描画
-    renderList(hiddenIds, currentStyle);
+    renderList(hiddenIds, currentStyle, currentSize);
   }
 }
 
 /**
  * アプリ一覧のレンダリング処理
  */
-function renderList(hiddenIds, style) {
+function renderList(hiddenIds, style, size) {
   container.innerHTML = ''; // 既存のリストをクリア
 
   DEFAULT_APPS.forEach(app => {
@@ -62,14 +79,14 @@ function renderList(hiddenIds, style) {
     label.className = 'app-toggle';
     
     const isChecked = !hiddenIds.includes(app.id);
-    const iconUrl = getIconUrl(app, style); // 現在のスタイルを適用
+    const iconUrl = getIconUrl(app, style);
 
     const img = document.createElement('img');
     img.src = iconUrl;
-    img.className = 'app-icon';
+    // サイズ（small/large）に応じたクラスを付与
+    img.className = `app-icon ${size}`;
     img.alt = app.name;
     img.addEventListener('error', () => {
-      // エラー時も現在のスタイルに合わせたサンプル画像を表示
       const dir = style === 'dot' ? 'dot-icons' : 'origin-icons';
       img.src = `statics/${dir}/sample.png`;
     });
@@ -96,7 +113,7 @@ function renderList(hiddenIds, style) {
 }
 
 /**
- * 設定（非表示リスト）を保存
+ * 非表示に設定されたアプリIDのリストを保存
  */
 async function saveSettings() {
   const checkboxes = container.querySelectorAll('input[type="checkbox"]');
@@ -115,7 +132,7 @@ async function saveSettings() {
 }
 
 /**
- * 保存完了通知
+ * 保存完了通知の表示
  */
 function showNotification() {
   statusMsg.classList.add('show');

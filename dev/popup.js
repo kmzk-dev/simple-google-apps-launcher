@@ -12,6 +12,7 @@ let draggedItem = null;
  */
 function getIconUrl(app, style = 'origin') {
   const dir = style === 'dot' ? 'dot-icons' : 'origin-icons';
+  // default_apps.json の icon フィールドがファイル名のみであることを前提とする
   const fileName = app.icon || 'sample.png';
   return `statics/${dir}/${fileName}`;
 }
@@ -20,6 +21,7 @@ function getIconUrl(app, style = 'origin') {
  * 初期化
  */
 async function init() {
+  // 1. JSON ファイルから DEFAULT_APPS を読み込む
   try {
     const response = await fetch('default_apps.json');
     if (!response.ok) throw new Error('Failed to load default_apps.json');
@@ -30,19 +32,18 @@ async function init() {
     return;
   }
 
+  // デフォルト値の設定
   let iconStyle = 'origin';
+  let iconSize = 'small';
 
+  // 2. ストレージから「並び順」「非表示リスト」「スタイル」「サイズ」を取得
   if (typeof chrome !== 'undefined' && chrome.storage) {
     try {
-      const result = await chrome.storage.local.get(['appOrder', 'hiddenAppIds', 'iconStyle']);
+      const result = await chrome.storage.local.get(['appOrder', 'hiddenAppIds', 'iconStyle', 'iconSize']);
       
-      if (result.iconStyle) {
-        iconStyle = result.iconStyle;
-      }
-
-      if (result.hiddenAppIds) {
-        hiddenAppIds = result.hiddenAppIds;
-      }
+      if (result.iconStyle) iconStyle = result.iconStyle;
+      if (result.iconSize) iconSize = result.iconSize;
+      if (result.hiddenAppIds) hiddenAppIds = result.hiddenAppIds;
 
       if (result.appOrder && Array.isArray(result.appOrder)) {
         const orderedApps = result.appOrder
@@ -57,16 +58,21 @@ async function init() {
     }
   }
 
-  render(iconStyle);
+  // 3. body にサイズクラスを付与（CSSでbodyの幅を切り替えるため）
+  document.body.className = iconSize;
+
+  // 4. 描画
+  render(iconStyle, iconSize);
   addResetListener();
 }
 
 /**
- * 描画
+ * 描画処理
  */
-function render(style) {
+function render(style, size) {
   grid.innerHTML = '';
   
+  // 非表示リストに含まれないアプリのみを表示
   const visibleApps = currentApps.filter(app => !hiddenAppIds.includes(app.id));
 
   visibleApps.forEach((app, index) => {
@@ -77,7 +83,8 @@ function render(style) {
     item.dataset.id = app.id;
 
     const icon = document.createElement('img');
-    icon.className = 'app-icon';
+    // アイコンにサイズクラス（small/large）を付与
+    icon.className = `app-icon ${size}`;
     icon.src = getIconUrl(app, style);
     icon.alt = app.name;
     icon.addEventListener('error', () => {
@@ -92,11 +99,13 @@ function render(style) {
     item.appendChild(icon);
     item.appendChild(name);
 
+    // クリックイベント：URLを開く
     item.onclick = () => {
       if (item.classList.contains('dragging')) return;
       chrome.tabs.create({ url: app.url });
     };
 
+    // ドラッグ開始
     item.ondragstart = () => {
       draggedItem = item;
       grid.classList.add('dragging-mode');
@@ -105,6 +114,7 @@ function render(style) {
 
     item.ondragover = e => e.preventDefault();
 
+    // ドロップ時の入れ替え処理
     item.ondrop = e => {
       e.preventDefault();
       const fromId = draggedItem.dataset.id;
@@ -117,10 +127,12 @@ function render(style) {
         const [moved] = currentApps.splice(fromFullIndex, 1);
         currentApps.splice(toFullIndex, 0, moved);
         saveOrder();
-        render(style);
+        // 再描画時もスタイルとサイズを維持
+        render(style, size);
       }
     };
 
+    // ドラッグ終了
     item.ondragend = () => {
       item.classList.remove('dragging');
       grid.classList.remove('dragging-mode');
@@ -131,6 +143,9 @@ function render(style) {
   });
 }
 
+/**
+ * リセットボタンのリスナー設定
+ */
 function addResetListener() {
   const resetBtn = document.getElementById('reset-button');
   if (!resetBtn) return;
@@ -138,19 +153,26 @@ function addResetListener() {
   resetBtn.onclick = async () => {
     if (confirm('アイコンの並び順を初期状態に戻しますか？')) {
       if (typeof chrome !== 'undefined' && chrome.storage) {
+        // 並び順データのみを削除
         await chrome.storage.local.remove('appOrder');
+        
+        // 現在の設定値を再取得して描画
+        const result = await chrome.storage.local.get(['iconStyle', 'iconSize']);
         currentApps = [...DEFAULT_APPS];
-        const result = await chrome.storage.local.get('iconStyle');
-        render(result.iconStyle || 'origin');
+        render(result.iconStyle || 'origin', result.iconSize || 'small');
       }
     }
   };
 }
 
+/**
+ * 並び順をストレージに保存
+ */
 function saveOrder() {
   if (typeof chrome !== 'undefined' && chrome.storage) {
     chrome.storage.local.set({ appOrder: currentApps.map(a => a.id) });
   }
 }
 
+// 実行開始
 init();

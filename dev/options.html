@@ -4,17 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Google App Launcher Settings</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-    :root {
-      --bg-color: #202124;
-      --card-bg: #292a2d;
-      --card-hover: #35363a;
-      --text-main: #e8eaed;
-      --text-sub: #bdc1c6;
-      --accent: #8ab4f8;
-      --border: #3c4043;
-    }
-
+    /* options.html 固有のスタイル */
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
@@ -37,30 +29,62 @@
       margin: 0 0 10px 0;
     }
 
-    .settings-section {
-      margin-bottom: 24px;
-      padding: 16px;
-      background-color: var(--card-bg);
-      border-radius: 12px;
-    }
-    .setting-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    #icon-style-select {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      border: 1px solid var(--border);
-      padding: 4px 8px;
-      border-radius: 4px;
-    }
-
     .description {
       color: var(--text-sub);
       font-size: 15px;
     }
 
+    .settings-section {
+      margin-bottom: 32px;
+      padding: 24px;
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .settings-section h2 {
+      font-size: 18px;
+      font-weight: 500;
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: var(--accent);
+    }
+
+    .settings-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .setting-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 200px;
+    }
+
+    .setting-item label {
+      font-size: 14px;
+      color: var(--text-sub);
+    }
+
+    .setting-item select {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .setting-item select:focus {
+      border-color: var(--accent);
+    }
+
+    /* --- アプリ一覧グリッド --- */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -77,6 +101,7 @@
       transition: all 0.2s ease;
       border: 1px solid transparent;
       user-select: none;
+      min-height: 64px; /* icon-Large: 高さ調整 */
     }
 
     .app-toggle:hover {
@@ -100,10 +125,9 @@
     }
 
     .app-icon {
-      width: 28px;
-      height: 28px;
-      margin-right: 12px;
       object-fit: contain;
+      margin-right: 12px;
+      transition: width 0.2s, height 0.2s;
     }
 
     .app-name {
@@ -111,6 +135,7 @@
       font-weight: 500;
     }
 
+    /* --- 保存ステータス通知 --- */
     #save-status {
       position: fixed;
       bottom: 40px;
@@ -133,43 +158,43 @@
       transform: translateY(0);
     }
 
-    /* スクロールバーのカスタマイズ */
-    ::-webkit-scrollbar {
-      width: 10px;
-    }
-    ::-webkit-scrollbar-track {
-      background: var(--bg-color);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 5px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #5f6368;
-    }
+    /* スクロールバー */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: var(--bg-color); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
+    ::-webkit-scrollbar-thumb:hover { background: #5f6368; }
   </style>
 </head>
 <body>
   <header>
-    <h1>ランチャー設定</h1>
-    <p class="description">ポップアップに表示するアプリケーションを選択してください。チェックを外すと非表示になります。並び順はポップアップ画面で直接ドラッグして変更できます。</p>
+    <h1>Settings</h1>
+    <p class="description">Select the applications to display in the popup. Unchecking an app will hide it. You can change the order by dragging items in the popup.</p>
   </header>
+
   <section class="settings-section">
-  <h2>表示設定</h2>
-    <div class="setting-item">
-      <label for="icon-style-select">アイコンのスタイル:</label>
-      <select id="icon-style-select">
-        <option value="origin">標準 (Original)</option>
-        <option value="dot">ドット (Dot)</option>
-      </select>
+    <h2>Display Settings</h2>
+    <div class="settings-grid">
+      <div class="setting-item">
+        <label for="icon-style-select">Icon Style</label>
+        <select id="icon-style-select">
+          <option value="origin">Default</option>
+          <option value="dot">Dot Style</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label for="icon-size-select">Icon Size</label>
+        <select id="icon-size-select">
+          <option value="small">Default</option>
+          <option value="large">Large</option>
+        </select>
+      </div>
     </div>
   </section>
   
   <div id="app-list" class="grid">
-    <!-- views -->
-  </div>
+    </div>
   
-  <div id="save-status">設定を保存しました</div>
+  <div id="save-status">Setting updated</div>
 
   <script src="options.js"></script>
 </body>
