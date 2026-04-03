@@ -7,11 +7,18 @@ let hiddenAppIds = [];
 const grid = document.getElementById('app-grid');
 let draggedItem = null;
 
-function getIconUrl(app) {
-  return app.icon || 'statics/dot-icons/sample.png';
-}
 /**
- * 初期化：JSON から DEFAULT_APPS を読み込み、ストレージから「並び順」と「非表示リスト」を両方取得する
+ * スタイルに対応したアイコンURL取得関数
+ */
+function getIconUrl(app, style = 'origin') {
+  const dir = style === 'dot' ? 'dot-icons' : 'origin-icons';
+  // default_apps.json の icon フィールドがファイル名のみであることを前提とする
+  const fileName = app.icon || 'sample.png';
+  return `statics/${dir}/${fileName}`;
+}
+
+/**
+ * 初期化
  */
 async function init() {
   // 1. JSON ファイルから DEFAULT_APPS を読み込む
@@ -25,14 +32,18 @@ async function init() {
     return;
   }
 
-  // 2. Chrome ストレージから「並び順」と「非表示リスト」を取得
+  // デフォルト値の設定
+  let iconStyle = 'origin';
+  let iconSize = 'small';
+
+  // 2. ストレージから「並び順」「非表示リスト」「スタイル」「サイズ」を取得
   if (typeof chrome !== 'undefined' && chrome.storage) {
     try {
-      const result = await chrome.storage.local.get(['appOrder', 'hiddenAppIds']);
+      const result = await chrome.storage.local.get(['appOrder', 'hiddenAppIds', 'iconStyle', 'iconSize']);
       
-      if (result.hiddenAppIds) {
-        hiddenAppIds = result.hiddenAppIds;
-      }
+      if (result.iconStyle) iconStyle = result.iconStyle;
+      if (result.iconSize) iconSize = result.iconSize;
+      if (result.hiddenAppIds) hiddenAppIds = result.hiddenAppIds;
 
       if (result.appOrder && Array.isArray(result.appOrder)) {
         const orderedApps = result.appOrder
@@ -47,17 +58,21 @@ async function init() {
     }
   }
 
-  render();
+  // 3. body にサイズクラスを付与（CSSでbodyの幅を切り替えるため）
+  document.body.className = iconSize;
+
+  // 4. 描画
+  render(iconStyle, iconSize);
   addResetListener();
 }
+
 /**
- * 描画：非表示リストに含まれないアプリのみを表示する
- * ドラッグ時のアニメーション制御を含む
+ * 描画処理
  */
-function render() {
+function render(style, size) {
   grid.innerHTML = '';
   
-  // hiddenAppIds に含まれていないものだけを抽出
+  // 非表示リストに含まれないアプリのみを表示
   const visibleApps = currentApps.filter(app => !hiddenAppIds.includes(app.id));
 
   visibleApps.forEach((app, index) => {
@@ -68,11 +83,13 @@ function render() {
     item.dataset.id = app.id;
 
     const icon = document.createElement('img');
-    icon.className = 'app-icon';
-    icon.src = getIconUrl(app);
+    // アイコンにサイズクラス（small/large）を付与
+    icon.className = `app-icon ${size}`;
+    icon.src = getIconUrl(app, style);
     icon.alt = app.name;
     icon.addEventListener('error', () => {
-      icon.src = 'statics/dot-icons/sample.png';
+      const dir = style === 'dot' ? 'dot-icons' : 'origin-icons';
+      icon.src = `statics/${dir}/sample.png`;
     });
 
     const name = document.createElement('span');
@@ -82,7 +99,7 @@ function render() {
     item.appendChild(icon);
     item.appendChild(name);
 
-    // クリックイベント：ドラッグ中でなければURLを開く
+    // クリックイベント：URLを開く
     item.onclick = () => {
       if (item.classList.contains('dragging')) return;
       chrome.tabs.create({ url: app.url });
@@ -91,9 +108,7 @@ function render() {
     // ドラッグ開始
     item.ondragstart = () => {
       draggedItem = item;
-      // グリッド全体に「入れ替えモード」のクラスを付与（周囲を揺らす）
       grid.classList.add('dragging-mode');
-      // 非同期でクラスを付与し、ドラッグ中の見た目を変更
       setTimeout(() => item.classList.add('dragging'), 0);
     };
 
@@ -112,14 +127,14 @@ function render() {
         const [moved] = currentApps.splice(fromFullIndex, 1);
         currentApps.splice(toFullIndex, 0, moved);
         saveOrder();
-        render();
+        // 再描画時もスタイルとサイズを維持
+        render(style, size);
       }
     };
 
-    // ドラッグ終了（ドロップの成否に関わらず実行）
+    // ドラッグ終了
     item.ondragend = () => {
       item.classList.remove('dragging');
-      // 入れ替えモード（揺れ）を解除
       grid.classList.remove('dragging-mode');
       draggedItem = null;
     };
@@ -128,6 +143,9 @@ function render() {
   });
 }
 
+/**
+ * リセットボタンのリスナー設定
+ */
 function addResetListener() {
   const resetBtn = document.getElementById('reset-button');
   if (!resetBtn) return;
@@ -135,21 +153,26 @@ function addResetListener() {
   resetBtn.onclick = async () => {
     if (confirm('アイコンの並び順を初期状態に戻しますか？')) {
       if (typeof chrome !== 'undefined' && chrome.storage) {
-        // 並び順データのみを削除（非表示設定 hiddenAppIds は維持）
+        // 並び順データのみを削除
         await chrome.storage.local.remove('appOrder');
         
-        // メモリ上の変数を初期化して再描画
+        // 現在の設定値を再取得して描画
+        const result = await chrome.storage.local.get(['iconStyle', 'iconSize']);
         currentApps = [...DEFAULT_APPS];
-        render();
+        render(result.iconStyle || 'origin', result.iconSize || 'small');
       }
     }
   };
 }
 
+/**
+ * 並び順をストレージに保存
+ */
 function saveOrder() {
   if (typeof chrome !== 'undefined' && chrome.storage) {
     chrome.storage.local.set({ appOrder: currentApps.map(a => a.id) });
   }
 }
 
+// 実行開始
 init();

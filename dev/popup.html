@@ -3,20 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
   <style>
     body {
-      width: 320px;
-      background-color: #202124;
-      color: #e8eaed;
-      font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 16px;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Segoe UI', sans-serif;
       user-select: none;
+      overflow: hidden;
+      transition: width 0.2s ease-in-out; /* サイズ切り替え時のアニメーション */
+    }
+    /* * アイコンサイズ（変数）に基づいてbody幅を動的に計算 
+    * 計算式: (アイコンサイズ + アイテム内の左右パディング等) * 3列 + bodyの左右パディング + グリッドのギャップ
+    */
+    body.small { 
+      width: calc((var(--icon-size-small) + 40px) * 3 + 32px + 16px); 
+    }
+
+    body.large { 
+      width: calc((var(--icon-size-large) + 40px) * 3 + 32px + 16px); 
     }
 
     #app-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
 
@@ -31,20 +43,19 @@
       transition: background-color 0.2s;
     }
 
-    .app-item:active { cursor: grabbing; }
-    .app-item:hover { background-color: rgba(232, 234, 237, 0.08); }
+    .app-item:active { 
+      cursor: grabbing; 
+    }
 
-    .dragging {
-      opacity: 0.4;
-      transform: scale(0.95);
+    .app-item:hover { 
+      background-color: rgba(232, 234, 237, 0.08); 
     }
 
     .app-icon {
-      width: 44px;
-      height: 44px;
       margin-bottom: 8px;
       pointer-events: none;
       object-fit: contain;
+      transition: width 0.2s, height 0.2s;
     }
 
     .app-name {
@@ -57,54 +68,57 @@
       pointer-events: none;
     }
 
-    .header {
-      padding-bottom: 12px;
-      border-bottom: 1px solid #3c4043;
-      margin-bottom: 12px;
-      font-weight: 500;
+    body.large .app-name {
+      font-size: 13px;
     }
 
-    /* popup.html の <style> 内に追加 */
+    .dragging {
+      opacity: 0.4;
+      transform: scale(0.95);
+    }
+
     @keyframes shake {
-      0% { transform: rotate(-3deg); }
-      50% { transform: rotate(3deg); }
-      100% { transform: rotate(-3deg); }
+      0% { transform: rotate(-2deg); }
+      50% { transform: rotate(2deg); }
+      100% { transform: rotate(-2deg); }
     }
 
     .dragging-mode .app-item:not(.dragging) {
       animation: shake 0.3s infinite;
     }
 
-    /* ドラッグ中のアイテム自体のスタイルを微調整 */
     .app-item.dragging {
       opacity: 0.5;
       transform: scale(1.1);
-      animation: none; /* ドラッグ中の本人は揺らさない */
+      animation: none;
       background-color: rgba(232, 234, 237, 0.15);
     }
+
     .reset-item {
-      grid-column: 1 / -1; /* 横いっぱいに広げる場合 */
-      margin-top: 8px;
+      grid-column: 1 / -1;
+      margin-top: 12px;
       padding: 8px;
-      border-top: 1px solid #3c4043;
+      border-top: 1px solid var(--border);
       cursor: pointer;
-      color: #bdc1c6;
+      color: var(--text-sub);
       font-size: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      transition: color 0.2s, background-color 0.2s;
     }
+
     .reset-item:hover {
       background-color: rgba(232, 234, 237, 0.08);
-      color: #e8eaed;
+      color: var(--text-main);
     }
   </style>
 </head>
 <body>
   <div id="app-grid"></div>
   <div id="reset-button" class="reset-item">
-    <span>並び替えをリセット</span>
+    <span>Default Order</span>
   </div>
   <script src="popup.js"></script>
 </body>
