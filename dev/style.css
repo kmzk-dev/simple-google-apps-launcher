@@ -1,40 +1,39 @@
 /* style.css */
 :root {
-  /* 共通カラー変数 */
-  --bg-color: #202124;
-  --card-bg: #292a2d;
-  --card-hover: #35363a;
-  --text-main: #e8eaed;
-  --text-sub: #bdc1c6;
-  --accent: #8ab4f8;
-  --border: #3c4043;
+     /* 共通カラー変数 */
+    --bg-color: #202124;
+    --card-bg: #292a2d;
+    --card-hover: #35363a;
+    --text-main: #e8eaed;
+    --text-sub: #bdc1c6;
+    --accent: #8ab4f8;
+    --border: #3c4043;
 
-  /* アイコンサイズの定義 (中間サイズ案) */
-  --icon-size-small: 52px;
-  --icon-size-large: 72px;
+    /* アイコンサイズの定義 */
+    --icon-size-small: 52px;
+    --icon-size-large: 72px;
 
-  /* Options画面用の縮尺率 (Popupの約0.6倍) */
-  --options-scale: 0.6;
+    /* Options画面用の縮尺率*/
+    --options-scale: 0.6;
 }
 
-/* 共通のアイコンクラス */
 .app-icon.small {
-  width: var(--icon-size-small);
-  height: var(--icon-size-small);
+    width: var(--icon-size-small);
+    height: var(--icon-size-small);
 }
 
 .app-icon.large {
-  width: var(--icon-size-large);
-  height: var(--icon-size-large);
+    width: var(--icon-size-large);
+    height: var(--icon-size-large);
 }
 
-/* Options画面内でのアイコンサイズ (calcで自動計算) */
+/* Options画面内でのアイコンサイズ*/
 .options-page .app-icon.small {
-  width: calc(var(--icon-size-small) * var(--options-scale));
-  height: calc(var(--icon-size-small) * var(--options-scale));
+    width: calc(var(--icon-size-small) * var(--options-scale));
+    height: calc(var(--icon-size-small) * var(--options-scale));
 }
 
 .options-page .app-icon.large {
-  width: calc(var(--icon-size-large) * var(--options-scale));
-  height: calc(var(--icon-size-large) * var(--options-scale));
+    width: calc(var(--icon-size-large) * var(--options-scale));
+    height: calc(var(--icon-size-large) * var(--options-scale));
 }
