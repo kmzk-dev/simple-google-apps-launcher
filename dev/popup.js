@@ -8,7 +8,7 @@ const grid = document.getElementById('app-grid');
 let draggedItem = null;
 
 function getIconUrl(app) {
-  return app.icon || 'statics/icons/sample.png';
+  return app.icon || 'statics/dot-icons/sample.png';
 }
 /**
  * 初期化：JSON から DEFAULT_APPS を読み込み、ストレージから「並び順」と「非表示リスト」を両方取得する
@@ -72,7 +72,7 @@ function render() {
     icon.src = getIconUrl(app);
     icon.alt = app.name;
     icon.addEventListener('error', () => {
-      icon.src = 'statics/icons/sample.png';
+      icon.src = 'statics/dot-icons/sample.png';
     });
 
     const name = document.createElement('span');

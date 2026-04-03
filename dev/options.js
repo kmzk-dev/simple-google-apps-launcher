@@ -8,7 +8,7 @@ const container = document.getElementById('app-list');
 const statusMsg = document.getElementById('save-status');
 
 function getIconUrl(app) {
-  return app.icon || 'statics/icons/sample.png';
+  return app.icon || 'statics/doticons/sample.png';
 }
 
 /**
@@ -42,7 +42,7 @@ async function init() {
       img.className = 'app-icon';
       img.alt = app.name;
       img.addEventListener('error', () => {
-        img.src = 'statics/icons/sample.png';
+        img.src = 'statics/dot-icons/sample.png';
       });
 
       const input = document.createElement('input');
