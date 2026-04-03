@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Simple Google Apps Launcher",
   "version": "1.0",
-  "description": "表示ON/OFF設定とドラッグ＆ドロップに対応したGoogleアプリランチャー",
+  "description": "Personalize your Google Apps launcher in the Chrome toolbar",
   "icons": {
     "16": "statics/this-app-icon.png",
     "48": "statics/this-app-icon.png",
