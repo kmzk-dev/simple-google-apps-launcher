@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Simple Google Apps Launcher",
-  "version": "1.0",
+  "version": "1.0.1",
   "description": "Personalize your Google Apps launcher in the Chrome toolbar",
   "icons": {
     "16": "statics/this-app-icon.png",
@@ -18,7 +18,6 @@
   },
   "options_page": "options.html",
   "permissions": [
-    "tabs",
     "storage"
   ],
   "content_security_policy": {
